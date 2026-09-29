@@ -1,0 +1,42 @@
+{
+  "nav": {
+    "home": "Home",
+    "matches": "Matches",
+    "predictions": "Predictions",
+    "analytics": "Analytics",
+    "news": "News",
+    "videos": "Videos",
+    "search": "Search",
+    "login": "Login",
+    "getStarted": "Get Started"
+  },
+  "hero": {
+    "line1": "REAL-TIME",
+    "line2": "INSIGHTS.",
+    "line3": "AI-POWERED PREDICTIONS.",
+    "subtitle": "Stay ahead of the game with live analytics and smart predictions.",
+    "cta": "Explore Predictions"
+  },
+  "match": {
+    "winProbability": "Win Probability",
+    "nextEvent": "Next Event",
+    "chanceOf": "Chance of",
+    "goalIn": "Goal in next 15 minutes",
+    "updatedRealtime": "Updated in real-time",
+    "possession": "Possession",
+    "shots": "Shots",
+    "onTarget": "On Target",
+    "corners": "Corners",
+    "viewFullStats": "View Full Stats",
+    "secondHalf": "2nd Half",
+    "live": "LIVE",
+    "draw": "Draw"
+  },
+  "footer": {
+    "rights": "All rights reserved",
+    "about": "About",
+    "contact": "Contact",
+    "privacy": "Privacy",
+    "terms": "Terms"
+  }
+}

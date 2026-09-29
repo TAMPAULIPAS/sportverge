@@ -2,16 +2,59 @@
   "name": "sportverge",
   "version": "0.1.0",
   "private": true,
+  "description": "SportVerge — AI-powered sports news, live scores, and predictions platform. Where sport meets the edge.",
+  "author": "SportVerge",
+  "license": "MIT",
+  "homepage": "https://sportverge.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/sportverge.git"
+  },
+  "keywords": [
+    "sports",
+    "ai",
+    "predictions",
+    "live-scores",
+    "nextjs",
+    "football",
+    "georgian",
+    "multilingual"
+  ],
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  },
+  "packageManager": "npm@10.9.0",
   "scripts": {
     "dev": "next dev",
+    "dev:turbo": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "next lint",
+    "lint:fix": "next lint --fix",
+    "type-check": "tsc --noEmit",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,css,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,css,md}\"",
+    "clean": "rimraf .next node_modules/.cache",
+    "clean:all": "rimraf .next node_modules .turbo",
+    "analyze": "ANALYZE=true next build",
+    "validate": "npm run type-check && npm run lint && npm run build"
   },
   "dependencies": {
+    "@supabase/ssr": "^0.12.7",
+    "@supabase/supabase-js": "^2.117.2",
+    "clsx": "^2.1.1",
+    "date-fns": "^4.1.0",
+    "framer-motion": "^13.4.4",
+    "lucide-react": "^1.48.0",
     "next": "16.3.6",
+    "next-intl": "^4.14.7",
+    "next-themes": "^0.4.6",
     "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react-dom": "19.2.8",
+    "sonner": "^1.7.1",
+    "tailwind-merge": "^3.7.0",
+    "zod": "^3.24.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
@@ -20,7 +63,22 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.3.6",
+    "prettier": "^3.4.2",
+    "prettier-plugin-tailwindcss": "^0.6.9",
+    "rimraf": "^6.0.1",
     "tailwindcss": "^4",
     "typescript": "^5"
+  },
+  "browserslist": {
+    "production": [
+      ">0.3%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   }
 }
