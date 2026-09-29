@@ -1,4 +1,4 @@
-import { predictMatchOutcome as pollPredictOutcome } from './pollinations';
+import { predictMatchOutcome as groqPredictOutcome } from './groq';
 // ═══════════════════════════════════════════════════════════════
 //  SportVerge — Match Predictor Engine
 //  ─────────────────────────────────────────────────────────────
@@ -332,7 +332,7 @@ export async function predictMatch(params: {
 
   // ─── 1. Try Gemini ───
   try {
-    const aiPrediction: WinPrediction | null = await pollPredictOutcome({
+    const aiPrediction: WinPrediction | null = await groqPredictOutcome({
       homeTeam,
       awayTeam,
       league,
@@ -474,7 +474,7 @@ export async function predictLiveNextEvent(params: {
   // ─── 1. Try Gemini ───
   try {
     const aiPrediction: NextEventPrediction | null =
-      await pollPredictOutcome({
+      await groqPredictOutcome({
         homeTeam,
         awayTeam,
         currentMinute,

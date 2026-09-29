@@ -1,12 +1,11 @@
 // ═══════════════════════════════════════════════════════════════
-//  SportVerge — AI Chat API (Pollinations ONLY)
-//  No Gemini, no API keys needed
+//  SportVerge — AI Chat API (Groq primary)
 // ═══════════════════════════════════════════════════════════════
 
 import { NextResponse, type NextRequest } from "next/server";
+import { groqChat } from "@/lib/ai/groq";
 
-const POLLINATIONS_GET = "https://text.pollinations.ai";
-const REFERRER = "sportverge.app";
+const POLLINATIONS_URL = "https://text.pollinations.ai/openai";
 
 async function callPollinations(
   systemPrompt: string,
@@ -14,40 +13,36 @@ async function callPollinations(
   history: Array<{ role: string; content: string }>
 ): Promise<string | null> {
   try {
-    const historyText = history
-      .slice(-6)
-      .map((h) => `${h.role === "user" ? "User" : "Assistant"}: ${h.content}`)
-      .join("\n");
-
-    const fullPrompt = `${systemPrompt}\n\n${historyText ? historyText + "\n" : ""}User: ${userMessage}\nAssistant:`;
-
-    const url = `${POLLINATIONS_GET}/${encodeURIComponent(fullPrompt)}?model=openai&referrer=${REFERRER}&seed=${Date.now()}`;
+    const messages = [
+      { role: "system", content: systemPrompt },
+      ...history.slice(-6).map((h) => ({
+        role: h.role === "user" ? "user" : "assistant",
+        content: h.content,
+      })),
+      { role: "user", content: userMessage },
+    ];
 
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 25000);
 
-    const res = await fetch(url, {
-      method: "GET",
+    const res = await fetch(POLLINATIONS_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "openai",
+        messages,
+        temperature: 0.7,
+        max_tokens: 600,
+      }),
       signal: controller.signal,
-      headers: { "User-Agent": "SportVerge/1.0" },
     });
 
     clearTimeout(timer);
+    if (!res.ok) return null;
 
-    if (!res.ok) {
-      console.warn(`[Pollinations] ${res.status}`);
-      return null;
-    }
-
-    const text = await res.text();
-    if (!text || text.length < 2) return null;
-
-    return text
-      .replace(/^(Assistant:|AI:)\s*/i, "")
-      .replace(/^["']|["']$/g, "")
-      .trim();
-  } catch (err) {
-    console.warn("[Pollinations] error:", err);
+    const data = await res.json();
+    return data?.choices?.[0]?.message?.content?.trim() || null;
+  } catch {
     return null;
   }
 }
@@ -86,24 +81,36 @@ export async function POST(request: NextRequest) {
     };
     const langName = langMap[locale];
 
-    const systemPrompt = `You are SportVerge AI — a friendly sports expert. Respond ONLY in ${langName}. Keep answers short (2-4 sentences). Use **bold** for numbers. Only discuss sports (football, basketball, tennis, F1, UFC, matches, scores, predictions). Never recommend betting.`;
+    const systemPrompt = `You are SportVerge AI — a friendly sports expert. Respond ONLY in ${langName}. Keep answers short (2-4 sentences). Use **bold** for numbers. Only discuss sports.`;
 
     const history = (Array.isArray(body.history) ? body.history : []).slice(-8) as Array<{
       role: string;
       content: string;
     }>;
 
-    const reply = await callPollinations(systemPrompt, message, history);
+    let reply = await groqChat({
+      systemPrompt,
+      userMessage: message,
+      history,
+      temperature: 0.7,
+      maxTokens: 600,
+    });
+    let provider = "groq";
+
+    if (!reply) {
+      reply = await callPollinations(systemPrompt, message, history);
+      provider = "pollinations";
+    }
 
     if (!reply) {
       return NextResponse.json({
         success: false,
         reply:
           locale === "ka"
-            ? "AI დროებით მიუწვდომელია. სცადე ხელახლა 10 წამში."
+            ? "AI დროებით მიუწვდომელია. სცადე ხელახლა."
             : locale === "ru"
-            ? "AI временно недоступен. Попробуй через 10 секунд."
-            : "AI temporarily unavailable. Try again in 10 seconds.",
+            ? "AI временно недоступен."
+            : "AI temporarily unavailable.",
         provider: "none",
         durationMs: Date.now() - startTime,
       });
@@ -112,7 +119,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       reply,
-      provider: "pollinations",
+      provider,
       durationMs: Date.now() - startTime,
     });
   } catch (err) {
@@ -129,7 +136,7 @@ export async function POST(request: NextRequest) {
 export async function GET() {
   return NextResponse.json({
     status: "ok",
-    provider: "pollinations (no key, unlimited)",
-    geminiRemoved: true,
+    provider: "groq",
+    groqConfigured: !!process.env.GROQ_API_KEY,
   });
 }
